@@ -20,8 +20,6 @@ enum ebl_counter {
     EBL_COUNTER_INSTRET = 1 << 2,
 };
 
-#define EBL_COUNTER_ALL (EBL_COUNTER_CYCLES | EBL_COUNTER_TIME_NS | EBL_COUNTER_INSTRET)
-
 struct ebl_snapshot {
     ebl_counter_t counters[EBL_NUM_COUNTERS];
 };
