@@ -41,6 +41,10 @@ struct ebl_state {
 };
 
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // Arch defined.
 int  ebl_counters_arch_init(void);
 void ebl_counters_arch_save(struct ebl_snapshot* snapshot);
@@ -52,3 +56,7 @@ void ebl_region_end(struct ebl_region* region);
 
 void ebl_state_init(struct ebl_state* state, int counters, size_t warmup, size_t measure);
 bool ebl_measure(struct ebl_state* state);
+
+#ifdef __cplusplus
+}
+#endif

@@ -4,6 +4,10 @@
 
 #include "ebl/measure.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // Add a benchmark function to a list of benchmarks to be executed.
 void ebl_register_bm(const char* name, void (*func)(struct ebl_state*),
                             int counters, size_t warmup, size_t measure);
@@ -15,6 +19,10 @@ void ebl_run_all(void);
 // a default implementation provided by ebl-stdio which prints to
 // the standard output.
 void ebl_report(const char* name, const struct ebl_region* region);
+
+#ifdef __cplusplus
+}
+#endif
 
 // Register a benchmark with specific counters.
 #define EBL_BENCHMARK_COUNTERS(bm_func, warmup, measure, counters) \
