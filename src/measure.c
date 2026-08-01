@@ -1,11 +1,11 @@
-#include "backend.h"
+#include "ebl/measure.h"
 
-void ebl_region_init(struct ebl_region *region)
+void ebl_region_init(struct ebl_region *region, int counters)
 {
-    region->counters = ebl_counters_arch_init();
+    region->counters = counters & ebl_counters_arch_init();
     region->count = 0;
     for (int i = 0; i < EBL_NUM_COUNTERS; i++) {
-        region->min[i] = UINT64_MAX;
+        region->min[i] = (ebl_counter_t)-1;
         region->max[i] = 0;
         region->sum[i] = 0;
     }
@@ -25,10 +25,8 @@ void ebl_region_end(struct ebl_region *region)
         if (!(region->counters & (1 << i)))
             continue;
 
-        // Drop overflowed samples.
-        if (end.counters[i] < region->start.counters[i])
-            continue;
-
+        // Overflow/reset of a counter across start->end isn't detected yet;
+        // this assumes it never wraps past the full counter width.
         ebl_counter_t delta = end.counters[i] - region->start.counters[i];
         if (delta < region->min[i])
             region->min[i] = delta;
@@ -40,9 +38,9 @@ void ebl_region_end(struct ebl_region *region)
     region->count++;
 }
 
-void ebl_state_init(struct ebl_state *state, size_t warmup, size_t measure)
+void ebl_state_init(struct ebl_state *state, int counters, size_t warmup, size_t measure)
 {
-    ebl_region_init(&state->region);
+    ebl_region_init(&state->region, counters);
     state->warmup_iters = warmup;
     state->measure_iters = measure;
     state->iter = 0;
@@ -50,7 +48,7 @@ void ebl_state_init(struct ebl_state *state, size_t warmup, size_t measure)
 
 bool ebl_measure(struct ebl_state *state)
 {
-    if (state->iter > 0) {
+    if (state->iter > state->warmup_iters) {
         ebl_region_end(&state->region);
     }
 

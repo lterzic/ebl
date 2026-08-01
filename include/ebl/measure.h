@@ -9,7 +9,6 @@
 #elif EBL_COUNTER_64BIT
     typedef uint64_t ebl_counter_t;
 #else
-    typedef unsigned long ebl_counter_t;
     #error "Architecture counter size not defined"
 #endif
 
@@ -20,6 +19,8 @@ enum ebl_counter {
     EBL_COUNTER_TIME_NS = 1 << 1,
     EBL_COUNTER_INSTRET = 1 << 2,
 };
+
+#define EBL_COUNTER_ALL (EBL_COUNTER_CYCLES | EBL_COUNTER_TIME_NS | EBL_COUNTER_INSTRET)
 
 struct ebl_snapshot {
     ebl_counter_t counters[EBL_NUM_COUNTERS];
@@ -47,9 +48,9 @@ int  ebl_counters_arch_init(void);
 void ebl_counters_arch_save(struct ebl_snapshot* snapshot);
 
 
-void ebl_region_init(struct ebl_region* region);
+void ebl_region_init(struct ebl_region* region, int counters);
 void ebl_region_start(struct ebl_region* region);
 void ebl_region_end(struct ebl_region* region);
 
-void ebl_state_init(struct ebl_state* state, size_t warmup, size_t measure);
+void ebl_state_init(struct ebl_state* state, int counters, size_t warmup, size_t measure);
 bool ebl_measure(struct ebl_state* state);
