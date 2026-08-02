@@ -10,7 +10,7 @@ separate libraries.
 ```sh
 cmake -B build -S .
 cmake --build build
-./build/example/ebl-example
+./build/examples/basic/ebl-example
 ```
 
 ## Writing a benchmark

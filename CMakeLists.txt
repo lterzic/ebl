@@ -22,5 +22,6 @@ target_link_libraries(ebl-main PUBLIC ebl-benchmark)
 
 option(EBL_BUILD_EXAMPLES "Build ebl example programs" ON)
 if(EBL_BUILD_EXAMPLES)
-    add_subdirectory(example)
+    add_subdirectory(examples/basic)
+    add_subdirectory(examples/freertos)
 endif()
