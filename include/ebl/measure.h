@@ -27,14 +27,14 @@ struct ebl_snapshot {
 struct ebl_region {
     int                 counters;
     size_t              count;
-    struct ebl_snapshot start;
-    ebl_counter_t       min[EBL_NUM_COUNTERS];
-    ebl_counter_t       max[EBL_NUM_COUNTERS];
-    ebl_counter_t       sum[EBL_NUM_COUNTERS];
+    struct ebl_snapshot min;
+    struct ebl_snapshot max;
+    struct ebl_snapshot sum;
 };
 
 struct ebl_state {
     struct ebl_region   region;
+    struct ebl_snapshot start;
     size_t              warmup_iters;
     size_t              measure_iters;
     size_t              iter;
@@ -48,11 +48,6 @@ extern "C" {
 // Arch defined.
 int  ebl_counters_arch_init(void);
 void ebl_counters_arch_save(struct ebl_snapshot* snapshot);
-
-
-void ebl_region_init(struct ebl_region* region, int counters);
-void ebl_region_start(struct ebl_region* region);
-void ebl_region_end(struct ebl_region* region);
 
 void ebl_state_init(struct ebl_state* state, int counters, size_t warmup, size_t measure);
 bool ebl_measure(struct ebl_state* state);

@@ -59,9 +59,9 @@ void ebl_report(const char *name, const struct ebl_region *region)
             continue;
         }
 
-        double mean = region->count ? (double)region->sum[i] / region->count : 0.0;
+        double mean = region->count ? (double)region->sum.counters[i] / region->count : 0.0;
         printf(" %*" EBL_COUNTER_FMT " %*.2f %*" EBL_COUNTER_FMT,
-               SUBFIELD_WIDTH, region->min[i], SUBFIELD_WIDTH, mean, SUBFIELD_WIDTH, region->max[i]);
+               SUBFIELD_WIDTH, region->min.counters[i], SUBFIELD_WIDTH, mean, SUBFIELD_WIDTH, region->max.counters[i]);
     }
     printf("\n");
 }

@@ -31,9 +31,12 @@ static void bm_matmul(struct ebl_state *state)
 
     while (ebl_measure(state)) {
         matmul<T>(a, b, c);
-        // Full memory clobber, not do_not_optimize(c[0]) -- otherwise the
-        // compiler can prove only c[0] escapes and drop the rest of the
-        // O(N^3) work.
+        // do_not_optimize(c[0]) would only escape one element, letting the
+        // compiler prove the rest of c is dead and drop the O(N^3) work; c's
+        // address is otherwise never taken, so escape the whole array. The
+        // clobber then forces a and b to be reread each iteration too,
+        // instead of the whole computation being hoisted as loop-invariant.
+        ebl_do_not_optimize(c);
         ebl_clobber();
     }
 }
