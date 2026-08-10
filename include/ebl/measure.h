@@ -34,10 +34,14 @@ struct ebl_region {
 
 struct ebl_state {
     struct ebl_region   region;
-    struct ebl_snapshot start;
+    struct ebl_snapshot start;    // start of the current timing bracket (single- or double-run)
+    struct ebl_snapshot single;   // pending single-run delta, held until the double-run completes
     size_t              warmup_iters;
     size_t              measure_iters;
+    // Below warmup_iters, counts warmup passes; at/above it, warmup_iters
+    // is subtracted off to give the count of completed measured samples.
     size_t              iter;
+    int                 phase;    // sub-step within the current sample: 0..3
 };
 
 
