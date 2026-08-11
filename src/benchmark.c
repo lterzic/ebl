@@ -1,4 +1,5 @@
 #include "ebl/benchmark.h"
+#include "ebl/counters.h"
 #include "ebl/measure.h"
 #include <stdbool.h>
 #include <stddef.h>
@@ -8,13 +9,13 @@
 #endif
 
 #ifndef EBL_WARMUP_ITERS
-#define EBL_WARMUP_ITERS 1000
+#define EBL_WARMUP_ITERS 10
 #endif
 
 struct ebl_benchmark {
     const char* name;
     void (*func)(struct ebl_state*);
-    int counters;
+    ebl_counter_mask_t counters;
     size_t warmup_iters;
     size_t measure_iters;
 };
@@ -22,7 +23,8 @@ struct ebl_benchmark {
 static struct ebl_benchmark s_registered[EBL_MAX_BENCHMARKS];
 static size_t s_nreg = 0;
 
-void ebl_register_bm(const char *name, void (*func)(struct ebl_state *), int counters, size_t warmup, size_t measure)
+void ebl_register_bm(const char *name, void (*func)(struct ebl_state *),
+                     ebl_counter_mask_t counters, size_t warmup, size_t measure)
 {
     if (s_nreg >= EBL_MAX_BENCHMARKS) {
         // No hosted abort/exit available in a freestanding build -- trap

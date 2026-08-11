@@ -1,3 +1,4 @@
+#include "ebl/counters.h"
 #include "ebl/measure.h"
 
 #include <time.h>
@@ -6,9 +7,9 @@
 // perf_event_open-based instruction counting would add a read() syscall per
 // sample, which would dominate the overhead of the tight loops this library
 // measures -- left unsupported for now.
-int ebl_counters_arch_init(void)
+int ebl_counters_arch_init(ebl_counter_mask_t counters)
 {
-    return EBL_COUNTER_CYCLES | EBL_COUNTER_TIME_NS;
+    return counters & (EBL_COUNTER_CYCLES | EBL_COUNTER_TIME_NS);
 }
 
 static ebl_counter_t read_cycles(void)

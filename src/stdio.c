@@ -28,16 +28,22 @@ static const char *counter_name(int index)
     }
 }
 
-static void print_header(void)
+static void print_header(ebl_counter_mask_t arch_mask)
 {
     printf("%-*s %*s", NAME_WIDTH, "", ITERS_WIDTH, "");
-    for (int i = 0; i < EBL_NUM_COUNTERS; i++)
+    for (int i = 0; i < EBL_NUM_COUNTERS; i++) {
+        if (!(arch_mask & (1 << i)))
+            continue;
         printf(" %*s", NUM_WIDTH, counter_name(i));
+    }
     printf("\n");
 
     printf("%-*s %*s", NAME_WIDTH, "name", ITERS_WIDTH, "iters");
-    for (int i = 0; i < EBL_NUM_COUNTERS; i++)
+    for (int i = 0; i < EBL_NUM_COUNTERS; i++) {
+        if (!(arch_mask & (1 << i)))
+            continue;
         printf(" %*s %*s %*s", SUBFIELD_WIDTH, "min", SUBFIELD_WIDTH, "mean", SUBFIELD_WIDTH, "max");
+    }
     printf("\n");
 }
 
@@ -45,16 +51,22 @@ void ebl_report(const char *name, const struct ebl_region *region)
 {
     // Regions are reported one at a time as each benchmark finishes, so the
     // header is only known to be complete (covers every counter) on the
-    // first call.
+    // first call. The set of columns is fixed by the architecture, not by
+    // any individual benchmark's requested counters.
     static int header_printed = 0;
+    static ebl_counter_mask_t arch_mask;
     if (!header_printed) {
-        print_header();
+        arch_mask = ebl_counters_arch_init(EBL_COUNTER_ALL);
+        print_header(arch_mask);
         header_printed = 1;
     }
 
     printf("%-*s %*zu", NAME_WIDTH, name, ITERS_WIDTH, region->count);
     for (int i = 0; i < EBL_NUM_COUNTERS; i++) {
-        if (!(region->counters & (1 << i))) {
+        if (!(arch_mask & (1 << i)))
+            continue;
+
+        if (!(region->counter_mask & (1 << i))) {
             printf(" %*s", NUM_WIDTH, "-");
             continue;
         }

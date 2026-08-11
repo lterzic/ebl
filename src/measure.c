@@ -1,8 +1,9 @@
 #include "ebl/measure.h"
+#include "ebl/counters.h"
 
-static void ebl_region_init(struct ebl_region *region, int counters)
+static void ebl_region_init(struct ebl_region *region, ebl_counter_mask_t counters)
 {
-    region->counters = counters & ebl_counters_arch_init();
+    region->counter_mask = ebl_counters_arch_init(counters);
     region->count = 0;
     for (int i = 0; i < EBL_NUM_COUNTERS; i++) {
         region->min.counters[i] = (ebl_counter_t)-1;
@@ -23,7 +24,7 @@ static void ebl_snapshot_delta(struct ebl_snapshot *delta, const struct ebl_snap
 static void ebl_region_update(struct ebl_region *region, const struct ebl_snapshot *delta)
 {
     for (int i = 0; i < EBL_NUM_COUNTERS; i++) {
-        if (!(region->counters & (1 << i)))
+        if (!(region->counter_mask & (1 << i)))
             continue;
 
         if (delta->counters[i] < region->min.counters[i])
@@ -36,7 +37,7 @@ static void ebl_region_update(struct ebl_region *region, const struct ebl_snapsh
     region->count++;
 }
 
-void ebl_state_init(struct ebl_state *state, int counters, size_t warmup, size_t measure)
+void ebl_state_init(struct ebl_state *state, ebl_counter_mask_t counters, size_t warmup, size_t measure)
 {
     ebl_region_init(&state->region, counters);
     state->warmup_iters = warmup;
