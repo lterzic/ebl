@@ -34,7 +34,8 @@ extern "C" {
 
 // Arch defined.
 int  ebl_counters_arch_init(ebl_counter_mask_t counters);
-void ebl_counters_arch_save(struct ebl_snapshot* snapshot);
+void ebl_counters_arch_save_start(struct ebl_snapshot* snapshot);
+void ebl_counters_arch_save_end(struct ebl_snapshot* snapshot);
 
 void ebl_state_init(struct ebl_state* state, ebl_counter_mask_t counters, size_t warmup, size_t measure);
 bool ebl_measure(struct ebl_state* state);

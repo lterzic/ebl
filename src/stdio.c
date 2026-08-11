@@ -34,7 +34,9 @@ static void print_header(ebl_counter_mask_t arch_mask)
     for (int i = 0; i < EBL_NUM_COUNTERS; i++) {
         if (!(arch_mask & (1 << i)))
             continue;
-        printf(" %*s", NUM_WIDTH, counter_name(i));
+        // Align over the "min" subcolumn rather than centering/trailing over
+        // the whole min/mean/max block.
+        printf(" %*s%*s", SUBFIELD_WIDTH, counter_name(i), SUBFIELD_WIDTH * 2 + 2, "");
     }
     printf("\n");
 

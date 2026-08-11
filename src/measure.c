@@ -58,15 +58,15 @@ bool ebl_measure(struct ebl_state *state)
         case 0: // about to start the single-run bracket
             if (state->iter - state->warmup_iters >= state->measure_iters)
                 return false;
-            ebl_counters_arch_save(&state->start);
+            ebl_counters_arch_save_start(&state->start);
             state->phase = 1;
             return true;
 
-        case 1: { // single-run done; record it, start the double-run bracket at the same instant
-            struct ebl_snapshot mid;
-            ebl_counters_arch_save(&mid);
-            ebl_snapshot_delta(&state->single, &mid, &state->start);
-            state->start = mid;
+        case 1: { // single-run done; record it, then start the double-run bracket
+            struct ebl_snapshot mid_end;
+            ebl_counters_arch_save_end(&mid_end);
+            ebl_snapshot_delta(&state->single, &mid_end, &state->start);
+            ebl_counters_arch_save_start(&state->start);
             state->phase = 2;
             return true;
         }
@@ -77,7 +77,7 @@ bool ebl_measure(struct ebl_state *state)
 
         default: { // case 3: double-run done; subtract the single-run to cancel fixed overhead
             struct ebl_snapshot end, doubled, delta;
-            ebl_counters_arch_save(&end);
+            ebl_counters_arch_save_end(&end);
             ebl_snapshot_delta(&doubled, &end, &state->start);
             ebl_snapshot_delta(&delta, &doubled, &state->single);
 
