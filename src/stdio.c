@@ -30,6 +30,8 @@ static const char *counter_name(int index)
 
 static void print_header(ebl_counter_mask_t arch_mask)
 {
+    printf("arch: %s\nmode: %s\n", EBL_ARCH_NAME, ebl_measure_mode_name());
+
     printf("%-*s %*s", NAME_WIDTH, "", ITERS_WIDTH, "");
     for (int i = 0; i < EBL_NUM_COUNTERS; i++) {
         if (!(arch_mask & (1 << i)))

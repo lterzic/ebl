@@ -9,7 +9,7 @@
 #endif
 
 #ifndef EBL_WARMUP_ITERS
-#define EBL_WARMUP_ITERS 10
+#define EBL_WARMUP_ITERS 100
 #endif
 
 struct ebl_benchmark {

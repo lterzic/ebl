@@ -22,5 +22,7 @@ set(FREERTOS_HEAP "4" CACHE STRING "" FORCE)
 
 FetchContent_MakeAvailable(freertos_kernel)
 
-add_executable(ebl-freertos-example main.c bench_mutex.c bench_queue.c)
-target_link_libraries(ebl-freertos-example PRIVATE ebl-benchmark ebl-stdio freertos_kernel)
+foreach(mode precise fast)
+    add_executable(ebl-freertos-example-${mode} main.c bench_mutex.c bench_queue.c)
+    target_link_libraries(ebl-freertos-example-${mode} PRIVATE ebl-benchmark ebl-stdio ebl-measure-${mode} freertos_kernel)
+endforeach()

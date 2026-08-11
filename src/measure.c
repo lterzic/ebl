@@ -1,6 +1,10 @@
 #include "ebl/measure.h"
 #include "ebl/counters.h"
 
+#if defined(EBL_MEASURE_FAST) && defined(EBL_MEASURE_PRECISE)
+#error "define at most one of EBL_MEASURE_FAST or EBL_MEASURE_PRECISE"
+#endif
+
 static void ebl_region_init(struct ebl_region *region, ebl_counter_mask_t counters)
 {
     region->counter_mask = ebl_counters_arch_init(counters);
@@ -55,13 +59,24 @@ bool ebl_measure(struct ebl_state *state)
 
     for (;;) {
         switch (state->phase) {
-        case 0: // about to start the single-run bracket
+        case 0: // about to start a bracket
             if (state->iter - state->warmup_iters >= state->measure_iters)
                 return false;
             ebl_counters_arch_save_start(&state->start);
             state->phase = 1;
             return true;
 
+#ifdef EBL_MEASURE_FAST
+        default: { // case 1: bracket done; the fixed snapshot overhead is not cancelled
+            struct ebl_snapshot end, delta;
+            ebl_counters_arch_save_end(&end);
+            ebl_snapshot_delta(&delta, &end, &state->start);
+            ebl_region_update(&state->region, &delta);
+            state->iter++;
+            state->phase = 0;
+            continue;
+        }
+#else
         case 1: { // single-run done; record it, then start the double-run bracket
             struct ebl_snapshot mid_end;
             ebl_counters_arch_save_end(&mid_end);
@@ -94,6 +109,16 @@ bool ebl_measure(struct ebl_state *state)
             state->phase = 0;
             continue;
         }
+#endif
         }
     }
+}
+
+const char *ebl_measure_mode_name(void)
+{
+#ifdef EBL_MEASURE_FAST
+    return "fast";
+#else
+    return "precise";
+#endif
 }

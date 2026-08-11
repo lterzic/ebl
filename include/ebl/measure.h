@@ -40,6 +40,8 @@ void ebl_counters_arch_save_end(struct ebl_snapshot* snapshot);
 void ebl_state_init(struct ebl_state* state, ebl_counter_mask_t counters, size_t warmup, size_t measure);
 bool ebl_measure(struct ebl_state* state);
 
+const char* ebl_measure_mode_name(void);
+
 #ifdef __cplusplus
 }
 #endif
