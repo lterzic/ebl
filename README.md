@@ -61,9 +61,16 @@ Use `EBL_BENCHMARK_COUNTERS(bm_func, warmup, iters, counters)` instead of
 
 ## Status
 
-- x86_64 only; other architectures fail CMake configuration with a clear
-  error rather than silently building without counters.
+- x86_64 and RISC-V (RV32/RV64, via the Zicntr extension) are supported;
+  other architectures fail CMake configuration with a clear error rather
+  than silently building without counters.
 - `EBL_COUNTER_INSTRET` (instructions retired) is not implemented on x86_64
   yet — it needs `perf_event_open`, which is a bigger follow-up.
+- `EBL_COUNTER_TIME_NS` is not implemented on RISC-V — Zicntr's `time` CSR
+  ticks at a platform-defined timebase frequency rather than nanoseconds,
+  and that frequency isn't discoverable from Zicntr itself.
+- RISC-V's `rdcycle`/`rdinstret` require the counters to be enabled for the
+  current privilege level (`mcounteren`/`scounteren`); a locked-down
+  kernel or M-mode setup that hasn't enabled them will trap instead.
 - Counter overflow across a region isn't detected; counters are assumed not
   to wrap during a single start/end measurement.
