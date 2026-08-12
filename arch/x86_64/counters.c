@@ -1,6 +1,7 @@
 #include "ebl/counters.h"
 #include "ebl/measure.h"
 
+#include <emmintrin.h>
 #include <time.h>
 #include <x86intrin.h>
 
@@ -24,11 +25,10 @@ static ebl_counter_t read_cycles_end(void)
 {
     // rdtscp waits for prior (timed) instructions to retire before
     // reading the counter, unlike rdtsc which can be reordered earlier.
-    // No trailing fence: every call site is followed by a start read
-    // before more timed code runs, and that read's lfence already
-    // blocks it from being reordered ahead of this one.
     unsigned int aux;
-    return __rdtscp(&aux);
+    ebl_counter_t ts = __rdtscp(&aux);
+    _mm_lfence();
+    return ts;
 }
 
 static ebl_counter_t read_time_ns(void)
