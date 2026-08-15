@@ -61,9 +61,10 @@ Use `EBL_BENCHMARK_COUNTERS(bm_func, warmup, iters, counters)` instead of
 
 ## Status
 
-- x86_64 and RISC-V (RV32/RV64, via the Zicntr extension) are supported;
-  other architectures fail CMake configuration with a clear error rather
-  than silently building without counters.
+- x86_64, RISC-V (RV32/RV64, via the Zicntr extension), and Cortex-M (via
+  the DWT cycle counter) are supported; other architectures fail CMake
+  configuration with a clear error rather than silently building without
+  counters.
 - `EBL_COUNTER_INSTRET` (instructions retired) is not implemented on x86_64
   yet — it needs `perf_event_open`, which is a bigger follow-up.
 - `EBL_COUNTER_TIME_NS` is not implemented on RISC-V — Zicntr's `time` CSR
@@ -72,5 +73,10 @@ Use `EBL_BENCHMARK_COUNTERS(bm_func, warmup, iters, counters)` instead of
 - RISC-V's `rdcycle`/`rdinstret` require the counters to be enabled for the
   current privilege level (`mcounteren`/`scounteren`); a locked-down
   kernel or M-mode setup that hasn't enabled them will trap instead.
+- Cortex-M only supports `EBL_COUNTER_CYCLES`, via the DWT unit's
+  `CYCCNT` register — no instruction-retired count or nanosecond clock is
+  available from the core itself. Cortex-M0/M0+/M1 have no DWT at all, so
+  they have no counter backend; this targets Cortex-M3 and up. `CYCCNT` is
+  only 32 bits, so it wraps roughly every 4 billion cycles.
 - Counter overflow across a region isn't detected; counters are assumed not
   to wrap during a single start/end measurement.
